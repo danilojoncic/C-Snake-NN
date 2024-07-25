@@ -12,6 +12,7 @@
 
 Layer* firstLayer;
 Layer* secondLayer;
+Layer* thirdLayer;
 Layer* outputLayer;
 
 static int highScore = 0;
@@ -557,7 +558,7 @@ void nn() {
     int currentDirection = head->dir;
 
     // Get prediction from neural network
-    int choice = predict(firstLayer, secondLayer, outputLayer, score, headX, headY, appleX, appleY, dstUp, dstDown, dstLeft, dstRight);
+    int choice = predict(firstLayer, secondLayer,thirdLayer, outputLayer, score, headX, headY, appleX, appleY, dstUp, dstDown, dstLeft, dstRight);
     // Define a mapping for turning directions
     void (*turnFunction)(void) = NULL;
     switch (currentDirection) {
@@ -591,8 +592,10 @@ int main(int argc, char* argv[]) {
 
     firstLayer = NULL;
     secondLayer = NULL;
+    thirdLayer = NULL;
     outputLayer = NULL;
-    initNN(&firstLayer,&secondLayer,&outputLayer);
+
+    initNN(&firstLayer,&secondLayer,&thirdLayer,&outputLayer);
 
 
     fileLoggerInit();
@@ -716,7 +719,8 @@ int main(int argc, char* argv[]) {
 
     freeLayer(firstLayer,FEATURES,0);
     freeLayer(secondLayer,NUMBER_OF_NEURONS,1);
-    freeLayer(outputLayer,NUMBER_OF_NEURONS,2);
+    freeLayer(thirdLayer,NUMBER_OF_NEURONS,2);
+    freeLayer(outputLayer,NUMBER_OF_NEURONS,3);
 
 
     closeLog();

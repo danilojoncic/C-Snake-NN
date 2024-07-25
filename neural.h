@@ -2,7 +2,7 @@
 #include <string.h>
 
 #define FEATURES 9
-#define NUMBER_OF_NEURONS 32
+#define NUMBER_OF_NEURONS 64
 #define OUTPUT_NEURONS 4
 #define NUMBER_OF_LAYERS 3
 #define EPOCHS 100
@@ -235,7 +235,7 @@ void formatInput(double** inputMatrix,double score, double headX, double headY, 
     inputMatrix[0][8] = dstDright;
 }
 
-void initNN(Layer** firstLayer, Layer** secondLayer,Layer** outputLayer){
+void initNN(Layer** firstLayer, Layer** secondLayer,Layer** thirdLayer,Layer** outputLayer){
     *firstLayer = createLayer(RELU,NUMBER_OF_NEURONS,FEATURES,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,FEATURES,1,NUMBER_OF_NEURONS);
     (*firstLayer)->weights = allocateMatrix((*firstLayer)->weightRows,(*firstLayer)->weigthCols);
     (*firstLayer)->biases = allocateMatrix((*firstLayer)->biasRows,(*firstLayer)->biasCols);
@@ -251,17 +251,24 @@ void initNN(Layer** firstLayer, Layer** secondLayer,Layer** outputLayer){
     loadWeights(*secondLayer,"layer_1_weights.csv");
     loadBiases(*secondLayer,"layer_1_biases.csv");
 
+    *thirdLayer = createLayer(RELU,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS);
+    (*thirdLayer)->weights = allocateMatrix((*thirdLayer)->weightRows,(*thirdLayer)->weigthCols);
+    (*thirdLayer)->biases = allocateMatrix((*thirdLayer)->biasRows,(*thirdLayer)->biasCols);
+
+    loadWeights(*thirdLayer,"layer_2_weights.csv");
+    loadBiases(*thirdLayer,"layer_2_biases.csv");
+
     *outputLayer = createLayer(SOFTMAX,OUTPUT_NEURONS,NUMBER_OF_NEURONS,OUTPUT_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,OUTPUT_NEURONS);
     (*outputLayer)->weights = allocateMatrix((*outputLayer)->weightRows,(*outputLayer)->weigthCols);
     (*outputLayer)->biases = allocateMatrix((*outputLayer)->biasRows,(*outputLayer)->biasCols);
 
-    loadWeights(*outputLayer,"layer_2_weights.csv");
-    loadBiases(*outputLayer,"layer_2_biases.csv");
+    loadWeights(*outputLayer,"layer_3_weights.csv");
+    loadBiases(*outputLayer,"layer_3_biases.csv");
 }
 
 //double gameState[] = {0,7,8,9,8,9,1,8,23};
 
-int predict(Layer* layer1,Layer* layer2, Layer* layerOutput,double score, double headX, double headY, double appleX, double appleY, double dstDup, double dstDdown, double dstDleft, double dstDright){
+int predict(Layer* layer1,Layer* layer2,Layer* layer3, Layer* layerOutput,double score, double headX, double headY, double appleX, double appleY, double dstDup, double dstDdown, double dstDleft, double dstDright){
     double** inputData = allocateMatrix(1,FEATURES);
     formatInput(inputData,score,headX,headY,appleX,appleY,dstDup,dstDdown,dstDleft,dstDright);
 
@@ -277,8 +284,10 @@ int predict(Layer* layer1,Layer* layer2, Layer* layerOutput,double score, double
 
     printMatrix(layer2->outputRows,layer2->outputCols,layer2->output);
 
+    layer3->input = layer2->output;
+    formOutputForLayer(layer3,1,layer3->inputCols,layer3->weightRows,layer3->weigthCols);
 
-    layerOutput->input = layer2->output;
+    layerOutput->input = layer3->output;
     printf("OUTPUT LAYER INPUT\n");
     printMatrix(layerOutput->inputRows,layerOutput->inputCols,layerOutput->input);
 
@@ -290,6 +299,7 @@ int predict(Layer* layer1,Layer* layer2, Layer* layerOutput,double score, double
     int direction = directionBasedOnOutput(layerOutput);
     freeMatrix(1,layer1->input);
     freeMatrix(1,layer2->input);
+    freeMatrix(1,layer3->input);
     freeMatrix(1,layerOutput->input);
     freeMatrix(1,layerOutput->output);
 
