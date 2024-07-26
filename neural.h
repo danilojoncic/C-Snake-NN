@@ -5,8 +5,7 @@
 #define NUMBER_OF_NEURONS 64
 #define OUTPUT_NEURONS 4
 #define NUMBER_OF_LAYERS 3
-#define EPOCHS 100
-#define LEARINING 0.01
+
 
 typedef enum{
     RELU,
@@ -161,7 +160,6 @@ void loadBiases(Layer* layer, char* filename) {
             fprintf(stderr, "Warning: Number of parsed values does not match the number of neurons.\n");
         }
     }
-
     fclose(fp);
 }
 
@@ -170,14 +168,8 @@ void formOutputForLayer(Layer* layer,int inputRows,int inputColumns,int weightRo
     layer->output = matrixAddition(
             1,layer->numberOfNeurons,matrixMultiplication
                     (inputRows,inputColumns,weightRows,weightColumns,layer->input,layer->weights),layer->biases);
-//    for(int i = 0; i < layer->numberOfNeurons; i++){
-//        printf("BEFORE ACTIVATION NEURON %d , OUTPUT : %f\n",i,layer->output[0][i]);
-//    }
     applyActivationFunction(layer);
-    //printf("ACTIVATION\n");
-//    for(int i = 0; i < layer->numberOfNeurons; i++){
-//        printf("AFTER ACTIVATION NEURON %d , OUTPUT : %f\n",i,layer->output[0][i]);
-//    }
+
 }
 
 Prediction directionBasedOnOutput(Layer* outputLayer){
@@ -205,18 +197,6 @@ void freeLayer(Layer* layer, int weightRows,int layerCount) {
         layer->biases = NULL;
     }
 
-//    if(layerCount == 0) {
-//        if (layer->input != NULL) {
-//            freeMatrix(1, layer->input);
-//            layer->input = NULL;
-//        }
-//    }
-//
-//    if (layer->output != NULL) {
-//        freeMatrix(1, layer->output);
-//        layer->output = NULL;
-//    }
-
     free(layer);
     printf("Layer %d structure freed.\n",layerCount+1);
 }
@@ -240,30 +220,30 @@ void initNN(Layer** firstLayer, Layer** secondLayer,Layer** thirdLayer,Layer** o
     (*firstLayer)->weights = allocateMatrix((*firstLayer)->weightRows,(*firstLayer)->weigthCols);
     (*firstLayer)->biases = allocateMatrix((*firstLayer)->biasRows,(*firstLayer)->biasCols);
 
-    loadWeights(*firstLayer,"layer_0_weights.csv");
-    loadBiases(*firstLayer,"layer_0_biases.csv");
+    loadWeights(*firstLayer,"layer_0_weights (1).csv");
+    loadBiases(*firstLayer,"layer_0_biases (1).csv");
 
 
     *secondLayer = createLayer(RELU,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS);
     (*secondLayer)->weights = allocateMatrix((*secondLayer)->weightRows,(*secondLayer)->weigthCols);
     (*secondLayer)->biases = allocateMatrix((*secondLayer)->biasRows,(*secondLayer)->biasCols);
 
-    loadWeights(*secondLayer,"layer_1_weights.csv");
-    loadBiases(*secondLayer,"layer_1_biases.csv");
+    loadWeights(*secondLayer,"layer_1_weights (1).csv");
+    loadBiases(*secondLayer,"layer_1_biases (1).csv");
 
     *thirdLayer = createLayer(RELU,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS);
     (*thirdLayer)->weights = allocateMatrix((*thirdLayer)->weightRows,(*thirdLayer)->weigthCols);
     (*thirdLayer)->biases = allocateMatrix((*thirdLayer)->biasRows,(*thirdLayer)->biasCols);
 
-    loadWeights(*thirdLayer,"layer_2_weights.csv");
-    loadBiases(*thirdLayer,"layer_2_biases.csv");
+    loadWeights(*thirdLayer,"layer_2_weights (1).csv");
+    loadBiases(*thirdLayer,"layer_2_biases (1).csv");
 
     *outputLayer = createLayer(SOFTMAX,OUTPUT_NEURONS,NUMBER_OF_NEURONS,OUTPUT_NEURONS,1,NUMBER_OF_NEURONS,1,NUMBER_OF_NEURONS,1,OUTPUT_NEURONS);
     (*outputLayer)->weights = allocateMatrix((*outputLayer)->weightRows,(*outputLayer)->weigthCols);
     (*outputLayer)->biases = allocateMatrix((*outputLayer)->biasRows,(*outputLayer)->biasCols);
 
-    loadWeights(*outputLayer,"layer_3_weights.csv");
-    loadBiases(*outputLayer,"layer_3_biases.csv");
+    loadWeights(*outputLayer,"layer_3_weights (1).csv");
+    loadBiases(*outputLayer,"layer_3_biases (1).csv");
 }
 
 //double gameState[] = {0,7,8,9,8,9,1,8,23};
@@ -274,13 +254,10 @@ int predict(Layer* layer1,Layer* layer2,Layer* layer3, Layer* layerOutput,double
 
     layer1->input = inputData;
     formOutputForLayer(layer1,1,layer1->inputCols,layer1->weightRows,layer1->weigthCols);
-    printf("OUTPUT layer 1 \n");
     printMatrix(layer1->outputRows,layer1->outputCols,layer1->output);
 
     layer2->input = layer1->output;
     formOutputForLayer(layer2,1,layer2->inputCols,layer2->weightRows,layer2->weigthCols);
-
-    printf("OUTPUT layer 2 \n");
 
     printMatrix(layer2->outputRows,layer2->outputCols,layer2->output);
 
@@ -288,7 +265,6 @@ int predict(Layer* layer1,Layer* layer2,Layer* layer3, Layer* layerOutput,double
     formOutputForLayer(layer3,1,layer3->inputCols,layer3->weightRows,layer3->weigthCols);
 
     layerOutput->input = layer3->output;
-    printf("OUTPUT LAYER INPUT\n");
     printMatrix(layerOutput->inputRows,layerOutput->inputCols,layerOutput->input);
 
     formOutputForLayer(layerOutput,1,layerOutput->inputCols,layerOutput->weightRows,layerOutput->weigthCols);
@@ -306,68 +282,3 @@ int predict(Layer* layer1,Layer* layer2,Layer* layer3, Layer* layerOutput,double
     return direction;
 }
 
-
-
-
-//int main() {
-//
-//    Layer* firstLayer = NULL;
-//    Layer* secondLayer = NULL;
-//    Layer* outputLayer = NULL;
-//    initNN(&firstLayer,&secondLayer,&outputLayer);
-//    predict(firstLayer,secondLayer,outputLayer,0,7,8,9,8,9,1,8,23);
-//    freeLayer(firstLayer,FEATURES,0);
-//    freeLayer(secondLayer,NUMBER_OF_NEURONS,1);
-//    freeLayer(outputLayer,NUMBER_OF_NEURONS,2);
-//
-//
-
-
-//    double** inputData = allocateMatrix(1,FEATURES);
-//    formatInput(inputData,0,7,8,9,8,9,1,8,23);
-//
-//    Layer* firstLayer = createLayer(RELU,NUMBER_OF_NEURONS,FEATURES);
-//    firstLayer->input = inputData;
-//    firstLayer->weights = allocateMatrix(FEATURES,NUMBER_OF_NEURONS);
-//    firstLayer->biases = allocateMatrix(1,NUMBER_OF_NEURONS);
-//
-//    loadWeights(firstLayer,"layer_0_weights.csv");
-//    loadBiases(firstLayer,"layer_0_biases.csv");
-//    printf("ACIVATING FIRST LAYER\n");
-//    formOutputForLayer(firstLayer,1,FEATURES,FEATURES,NUMBER_OF_NEURONS);
-//
-//
-//    Layer* secondLayer = createLayer(RELU,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS);
-//    secondLayer->input = firstLayer->output;
-//    secondLayer->weights = allocateMatrix(NUMBER_OF_NEURONS,NUMBER_OF_NEURONS);
-//    secondLayer->biases = allocateMatrix(1,NUMBER_OF_NEURONS);
-//
-//    loadWeights(secondLayer,"layer_1_weights.csv");
-//    loadBiases(secondLayer,"layer_1_biases.csv");
-//
-//    printf("ACIVATING SECOND LAYER\n");
-//    formOutputForLayer(secondLayer,1,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS);
-//
-//
-//
-//    Layer* outputLayer = createLayer(SOFTMAX,OUTPUT_NEURONS,NUMBER_OF_NEURONS);
-//    outputLayer->input = secondLayer->output;
-//    outputLayer->weights = allocateMatrix(NUMBER_OF_NEURONS,OUTPUT_NEURONS);
-//    outputLayer->biases = allocateMatrix(1,OUTPUT_NEURONS);
-//
-//    loadWeights(outputLayer,"layer_2_weights.csv");
-//    loadBiases(outputLayer,"layer_2_biases.csv");
-//
-//    printf("ACIVATING OUTPUT LAYER\n");
-//    formOutputForLayer(outputLayer,1,NUMBER_OF_NEURONS,NUMBER_OF_NEURONS,OUTPUT_NEURONS);
-//
-//    int direction = directionBasedOnOutput(outputLayer);
-//    printf("Direction: %d\n",direction);
-
-//    freeLayer(firstLayer,FEATURES,0);
-//    freeLayer(secondLayer,NUMBER_OF_NEURONS,1);
-//    freeLayer(outputLayer,NUMBER_OF_NEURONS,2);
-
-
-//    return 0;
-//}

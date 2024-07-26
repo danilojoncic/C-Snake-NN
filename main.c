@@ -7,7 +7,7 @@
 #include "glyph.h"
 #define GRID_SIZE 30
 #define GRID_DIM 600
-#define DELAY 100
+#define DELAY 5
 
 
 Layer* firstLayer;
@@ -475,21 +475,6 @@ void renderScore(SDL_Renderer *renderer) {
 
 
 }
-
-void ai() {
-    int tryForward = state(TRY_FORWARD);
-    int tryLeft = state(TRY_LEFT);
-    int tryRight = state(TRY_RIGHT);
-
-    if (tryForward >= tryLeft && tryForward >= tryRight) {
-        // Continue forward
-    } else if (tryLeft > tryRight) {
-        turnLeft();
-    } else {
-        turnRight();
-    }
-}
-
 int calculateDistanceToDanger(Direction direction) {
     int distance = 0;
     int currentX = head->x;
@@ -541,6 +526,24 @@ void logFile(){
 void closeLog(){
     fclose(fp);
     fp = NULL;
+}
+
+void ai() {
+    int tryForward = state(TRY_FORWARD);
+    int tryLeft = state(TRY_LEFT);
+    int tryRight = state(TRY_RIGHT);
+
+    if (tryForward >= tryLeft && tryForward >= tryRight) {
+        // Continue forward
+    } else if (tryLeft > tryRight) {
+        logFile();
+        turnLeft();
+        logFile();
+    } else {
+        logFile();
+        turnRight();
+        logFile();
+    }
 }
 
 
@@ -635,9 +638,7 @@ int main(int argc, char* argv[]) {
     bool quit = false;
     bool debugMode = false;
     bool paused = false;
-    int decider = 0;
-
-
+    int decider = 1;
 
     SDL_Event event;
     while (!quit) {
@@ -711,9 +712,12 @@ int main(int argc, char* argv[]) {
 
         SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 255);
         SDL_RenderPresent(renderer);
-        if(decider != 2){
-            logFile();
+
+            //choices.csv fajl je ispisan sa ~70k redova, nema potrebe za vise od ovoga
+        if(decider != 2 ) {
+            //logFile();
         }
+
         SDL_Delay(DELAY);
     }
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+//#include <pthread.h>
 
 double** allocateMatrix(int rows, int cols) {
     double** matrix = (double**)malloc(rows * sizeof(double*));
