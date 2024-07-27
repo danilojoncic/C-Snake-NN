@@ -4,6 +4,7 @@
 #include <math.h>
 //#include <pthread.h>
 
+
 double** allocateMatrix(int rows, int cols) {
     double** matrix = (double**)malloc(rows * sizeof(double*));
     for (int i = 0; i < rows; i++) {
@@ -12,13 +13,13 @@ double** allocateMatrix(int rows, int cols) {
     return matrix;
 }
 
-//void setRandomValues(int rows, int cols,double **matrix,double min, double max){
-//    for(int i = 0; i < rows; i++){
-//        for(int j = 0; j < cols; j++){
-//            matrix[i][j] = min + (double)rand() / RAND_MAX * (max - min);
-//        }
-//    }
-//}
+void setRandomValues(int rows, int cols,double **matrix,double min, double max){
+    for(int i = 0; i < rows; i++){
+        for(int j = 0; j < cols; j++){
+            matrix[i][j] = min + (double)rand() / RAND_MAX * (max - min);
+        }
+    }
+}
 
 double** matrixAddition(int rows, int cols, double** matrixA, double** matrixB){
     double** outputMatrix = allocateMatrix(rows,cols);

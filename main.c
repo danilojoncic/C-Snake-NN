@@ -262,7 +262,7 @@ void resetSnake() {
     }
     putSnake();
     localScore = 0;
-    printf("LocalScore = %d, HighScore = %d\n", localScore, highScore);
+    //printf("LocalScore = %d, HighScore = %d\n", localScore, highScore);
 }
 
 void detectApple() {
@@ -273,7 +273,7 @@ void detectApple() {
         if (localScore >= highScore) {
             highScore = localScore;
         }
-        printf("LocalScore = %d, HighScore = %d\n", localScore, highScore);
+        //printf("LocalScore = %d, HighScore = %d\n", localScore, highScore);
     }
 }
 
@@ -481,7 +481,6 @@ int calculateDistanceToDanger(Direction direction) {
     int currentY = head->y;
     int dx = 0, dy = 0;
 
-    // Determine the direction deltas
     switch (direction) {
         case SNAKE_UP:    dy = -1; break;
         case SNAKE_DOWN:  dy = 1;  break;
@@ -548,7 +547,6 @@ void ai() {
 
 
 void nn() {
-    // Gather current game state
     int score = localScore;
     int headX = head->x;
     int headY = head->y;
@@ -560,9 +558,8 @@ void nn() {
     int dstRight = calculateDistanceToDanger(SNAKE_RIGHT);
     int currentDirection = head->dir;
 
-    // Get prediction from neural network
     int choice = predict(firstLayer, secondLayer,thirdLayer, outputLayer, score, headX, headY, appleX, appleY, dstUp, dstDown, dstLeft, dstRight);
-    // Define a mapping for turning directions
+
     void (*turnFunction)(void) = NULL;
     switch (currentDirection) {
         case SNAKE_UP:
