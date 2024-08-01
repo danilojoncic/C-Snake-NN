@@ -5,9 +5,10 @@
 #include <time.h>
 #include "neural.h"
 #include "glyph.h"
+#include "a_star.h"
 #define GRID_SIZE 30
 #define GRID_DIM 600
-#define DELAY 5
+#define DELAY 100
 
 
 Layer* firstLayer;
@@ -150,7 +151,7 @@ void renderSnake(SDL_Renderer *renderer, int x, int y) {
     }
 }
 
-void renderGrid(SDL_Renderer *renderer, int x, int y) {
+void renderGrid(SDL_Renderer *renderer, int x, int y,int** backupGrid, bool printPath) {
     int cellSize = GRID_DIM / GRID_SIZE;
     SDL_Rect cell;
     cell.w = cellSize;
@@ -159,6 +160,11 @@ void renderGrid(SDL_Renderer *renderer, int x, int y) {
     SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 255);
     for (int i = 0; i < GRID_SIZE; i++) {
         for (int j = 0; j < GRID_SIZE; j++) {
+            if(printPath && backupGrid[i][j] == 9){
+                SDL_SetRenderDrawColor(renderer, 0xeb, 0xda, 0x21, 255);//zuto
+            }else{
+                SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 255);
+            }
             cell.x = x + (i * cellSize);
             cell.y = y + (j * cellSize);
             SDL_RenderDrawRect(renderer, &cell);
@@ -214,7 +220,7 @@ void renderDebugInfo(SDL_Renderer *renderer, int x, int y) {
 
 
 
-void generateApple() {
+void generateApple(int** backupGrid, bool printPath) {
     bool in_snake;
 
     do {
@@ -230,6 +236,18 @@ void generateApple() {
             track = track->next;
         }
     } while (in_snake);
+    if(printPath){
+        fillGridWithZero(backupGrid,GRID_SIZE);
+        Snake *track = head->next;
+        while (track != NULL) {
+            backupGrid[track->x][track->y] = OBSTACLE;
+            track = track->next;
+        }
+        track = NULL;
+        Node* start = createNode(head->x, head->y, 0, heuristic(0, 0, apple.x, apple.y), NULL);
+        Node* dest = createNode(apple.x,apple.y, 0, 0, NULL);
+        aStar(backupGrid,GRID_SIZE, start,dest);
+    }
 }
 
 void renderApple(SDL_Renderer *renderer, int x, int y) {
@@ -265,9 +283,9 @@ void resetSnake() {
     //printf("LocalScore = %d, HighScore = %d\n", localScore, highScore);
 }
 
-void detectApple() {
+void detectApple(int** backupGrid, bool printPath) {
     if (head->x == apple.x && head->y == apple.y) {
-        generateApple();
+        generateApple(backupGrid,printPath);
         increaseSnake();
         localScore++;
         if (localScore >= highScore) {
@@ -595,6 +613,11 @@ int main(int argc, char* argv[]) {
     thirdLayer = NULL;
     outputLayer = NULL;
 
+    int** grid = allocateGrid(GRID_SIZE,GRID_SIZE);
+    fillGridWithZero(grid,GRID_SIZE);
+    bool printPath = false;
+
+
     initNN(&firstLayer,&secondLayer,&thirdLayer,&outputLayer);
 
 
@@ -630,7 +653,7 @@ int main(int argc, char* argv[]) {
     int gridY = (windowHeight / 2) - (GRID_DIM / 2);
 
     putSnake();
-    generateApple();
+    generateApple(grid,printPath);
 
     bool quit = false;
     bool debugMode = false;
@@ -661,7 +684,7 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_i:
                         decider++;
-                        if(decider > 2)decider %= 3;
+                        if(decider > 3)decider %= 4;
                         break;
                 }
             }
@@ -673,7 +696,7 @@ int main(int argc, char* argv[]) {
             //provjeravam da li je doslo do sudara sa zidom ili tijelom
             detectCrash();
             //provjeravam da li je doslo da sudara sa jabukom
-            detectApple();
+            detectApple(grid,printPath);
         }else{
             renderGlyph(renderer, 900, 25, stopIcon,0);
         }
@@ -681,7 +704,7 @@ int main(int argc, char* argv[]) {
 
 
         //poziv funkcija koje ce da crtaju sadrzaj ekrana
-        renderGrid(renderer, gridX, gridY);
+        renderGrid(renderer, gridX, gridY,grid,printPath);
         renderSnake(renderer, gridX, gridY);
         renderApple(renderer, gridX, gridY);
         renderScore(renderer);
@@ -704,13 +727,20 @@ int main(int argc, char* argv[]) {
                 renderGlyph(renderer,900,200,letterN,0);
                 renderGlyph(renderer,1000,200,letterN,0);
                 break;
+            case 3:
+                printPath = true;
+                renderGlyph(renderer,900,200,letterA,0);
+                renderGlyph(renderer,1000,200,star,0);
+                break;
+
+
 
         }
 
         SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 255);
         SDL_RenderPresent(renderer);
 
-            //choices.csv fajl je ispisan sa ~70k redova, nema potrebe za vise od ovoga
+        //choices.csv fajl je ispisan sa ~70k redova, nema potrebe za vise od ovoga
         if(decider != 2 ) {
             //logFile();
         }
