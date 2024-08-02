@@ -237,18 +237,28 @@ void generateApple(int** backupGrid, bool printPath) {
         }
     } while (in_snake);
     if(printPath){
-        fillGridWithZero(backupGrid,GRID_SIZE);
-        Snake *track = head->next;
-        while (track != NULL) {
-            backupGrid[track->x][track->y] = OBSTACLE;
-            track = track->next;
-        }
-        track = NULL;
-        Node* start = createNode(head->x, head->y, 0, heuristic(0, 0, apple.x, apple.y), NULL);
-        Node* dest = createNode(apple.x,apple.y, 0, 0, NULL);
-        aStar(backupGrid,GRID_SIZE, start,dest);
+
     }
 }
+
+void aStarAlgorithm(int ** backupGrid){
+    Snake* check = head;
+    while(check){
+        if(check->x < 0 || check->y < 0)return;
+        check = check->next;
+    }
+    fillGridWithZero(backupGrid,GRID_SIZE);
+    Snake *track = head->next;
+    while (track != NULL) {
+        backupGrid[track->x][track->y] = OBSTACLE;
+        track = track->next;
+    }
+    track = NULL;
+    Node* start = createNode(head->x, head->y, 0, heuristic(0, 0, apple.x, apple.y), NULL);
+    Node* dest = createNode(apple.x,apple.y, 0, 0, NULL);
+    aStar(backupGrid,GRID_SIZE, start,dest);
+}
+
 
 void renderApple(SDL_Renderer *renderer, int x, int y) {
     SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 255);
@@ -551,15 +561,10 @@ void ai() {
     int tryRight = state(TRY_RIGHT);
 
     if (tryForward >= tryLeft && tryForward >= tryRight) {
-        // Continue forward
     } else if (tryLeft > tryRight) {
-        logFile();
         turnLeft();
-        logFile();
     } else {
-        logFile();
         turnRight();
-        logFile();
     }
 }
 
@@ -621,7 +626,7 @@ int main(int argc, char* argv[]) {
     initNN(&firstLayer,&secondLayer,&thirdLayer,&outputLayer);
 
 
-    fileLoggerInit();
+    //fileLoggerInit();
     SDL_DisplayMode DM;
     SDL_GetCurrentDisplayMode(0, &DM);
     int screenWidth = DM.w;
@@ -693,6 +698,10 @@ int main(int argc, char* argv[]) {
         if(!paused){
             //pomjeram zmiju na osnovu smjera
             moveSnake();
+            if(printPath){
+                aStarAlgorithm(grid);
+            }
+            //logFile();
             //provjeravam da li je doslo do sudara sa zidom ili tijelom
             detectCrash();
             //provjeravam da li je doslo da sudara sa jabukom
@@ -728,7 +737,7 @@ int main(int argc, char* argv[]) {
                 renderGlyph(renderer,1000,200,letterN,0);
                 break;
             case 3:
-                printPath = true;
+                printPath = !printPath;
                 renderGlyph(renderer,900,200,letterA,0);
                 renderGlyph(renderer,1000,200,star,0);
                 break;
@@ -739,12 +748,6 @@ int main(int argc, char* argv[]) {
 
         SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 255);
         SDL_RenderPresent(renderer);
-
-        //choices.csv fajl je ispisan sa ~70k redova, nema potrebe za vise od ovoga
-        if(decider != 2 ) {
-            //logFile();
-        }
-
         SDL_Delay(DELAY);
     }
 
@@ -754,7 +757,7 @@ int main(int argc, char* argv[]) {
     freeLayer(outputLayer,NUMBER_OF_NEURONS,3);
 
 
-    closeLog();
+    //closeLog();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
