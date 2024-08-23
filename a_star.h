@@ -67,7 +67,6 @@ Node* createNode(int x, int y, int g, int h, Node* parent){
 }
 
 void freeEverything(Node* start, Node* end, Node** openList, int openListSize) {
-    // Free nodes in the path
     Node* current = end;
     while (current) {
         Node* temp = current;
