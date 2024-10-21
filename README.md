@@ -12,20 +12,19 @@ snake game using SDL2 for graphics and having a simple AI mode and a Neural Netw
 - A* suggestion while user operated (paints the tiles yellow to represent the shortest path)
 ## Notes
 - the weights and biases .csv files contain the weights and biases for the neural network. Anyone can easily after training switch their own values instead of the ones provided
-- the given code only represents the written code
-- the neural network code does not contain the back-propagation because it does not
+- Back propagation code is not included
 - Neural network was trained on the choices.csv that represent every choice to change direction when playing
 ## How to run
 - git clone the repository
-- write your own CMake or Makefile that will include all the linking to the SDL2 directory on your computer, or just clone an SDL2 template any copy and paste the .c and .h files inside the scripts directory
+- write your own CMake or Makefile that will include all the linking to the SDL2 directory on your system, or just clone a SDL2 template and copy and paste the .c and .h files inside the scripts directory
 ## Issues
-- bad memory managment for the A*, leading to crashes when hitting the wall with the A* mode turned on
+- bad memory managment for the A*
 - sticky A* for drawing
-- really stupid Snake behaviour when in Neural Network mode (tricky to get right even after 15 different hyperparamets tests)
+- really stupid Snake behaviour when in Neural Network mode (tricky to get right even after 15 different hyperparamters)
 ## Possible additions
-- Performance improvments (Multithreding and/or CUDA)
+- Performance improvments (Multithreading)
 - Genetic algorithm
-- Q Learining
+- Q Learning
 ## Images
 ![image](https://github.com/user-attachments/assets/d529bb49-0f57-4e8b-857a-501e559c24d1)
 ![image](https://github.com/user-attachments/assets/8aa7ce61-2b34-425b-8062-5524f7d9db2d)
